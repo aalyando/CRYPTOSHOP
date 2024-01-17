@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ua">
+<head>
+    <title>{% block title %}CRYPTONIC{% endblock %}</title>
+</head>
+<body>
+<style>
+.menu-main {
+  list-style: none;
+  padding: 0 30px;
+  margin: 0;
+  font-size: 18px;
+  text-align: center;
+  position: relative;
+  background: black;
+}
+.menu-main li {display: inline-block;}
+.menu-main a {
+  text-decoration: none;
+  display: inline-block;
+  margin: 0 15px;
+  padding: 10px 30px;
+  font-family: 'PT Sans Caption', sans-serif;
+  color: yellow;
+  transition: .3s linear;
+  position: relative;
+}
+{
+  .menu-main li {display: block;}
+}
+</style>
+<div class="navbar">
+    <nav>
+        <ul class="menu-main">
+        {% if user.is_authenticated %}
+            <li><h4 style="color: yellow">CRYPTONIC</h4></li>
+            <li><a href="{% url 'products_list' %}">SHOP</a></li>
+            <li><a href="{% url 'cart' %}">DEALS</a></li>
+            <li>
+                {% if user.is_superuser %}
+                <a href="{% url 'view_returns' %}">REFUNDS</a>{% endif %}
+            </li>
+            <li>
+            {% if user.is_authenticated %}
+            <p style="color: aqua">Hi, {{ user.username }} <li><a href="{% url 'logout' %}">Logout</a></li></p>
+        {% else %}
+            <p><a href="{% url 'login' %}">LOGIN</a></p>
+        {% endif %}
+            {% else %}
+            <li><h4 style="color: yellow">CRYPTONIC</h4></li>
+            <li><a href="{% url 'products_list' %}">SHOP</a></li>
+            <li><a href="{% url 'login' %}">LOGIN</a></li>
+        {% endif %}
+            </li>
+</ul>
+    </nav>
+</div>
+    <div>
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

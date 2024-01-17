@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .additional-content {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .additional-content img {
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .additional-content h2 {
+            font-size: 1.2em;
+        }
+
+        .additional-content p {
+            margin: 5px 0;
+        }
+        h1 {
+            color : yellow;
+        }
+    </style>
+    <h1>SHOP</h1>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+    {% if user.is_superuser %}<a href ="{% url 'add_product' %}">ADD NEW CRYPTO</a>{% endif %}
+    <div class="grid-container">
+        {% for products in products_list %}
+        <div class="additional-content">
+            <img src="{{ products.product_image.url }}" alt="Изображение товара">
+            <h2>{{ products.product_name }}</h2>
+            <p>{{ products.product_discription }}</p>
+            <p>1 {{ products.product_name }} = {{ products.product_price }}$</p>
+            <p>Available amount: {{ products.product_amount }}</p>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'add_to_cart' products.id %}">
+                {% csrf_token %}
+                <label for="quantity-{{ products.id }}">Amount to buy:</label>
+                <input type="number" step="0.001" value="" min="0.001" id="quantity-{{ products.id }}" name="quantity">
+                <button type="submit">Buy</button>
+            </form>
+            {% endif %}
+            {% if user.is_authenticated and user.is_superuser %}<a href="{% url 'edit_product' products.id %}">Edit</a>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

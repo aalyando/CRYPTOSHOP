@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.is_superuser %}
+  <form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+        {% for products in products_list %}
+            <option value="{{ products.product_name }}">{{ products.product_discription }}> {{ product_price }}>
+            {{ product_amount }}> {{ product_image }}</option>
+        {% endfor %}
+  <button type="submit">ADD CRYPTO</button>
+</form>
+    {% else %}
+        <h1 style="color:red">SORRY, ERROR 401</h1>
+{% endif %}
+{% endblock %}

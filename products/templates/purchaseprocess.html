@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .grid-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.grid-item {
+      border: 1px solid #ccc;
+    flex: 0 0 calc(33.333% - 20px);
+    margin: 10px;
+     text-align: center;
+}
+h1 {
+    color: yellow;
+}
+    </style>
+    <h1>CART</h1>
+    <div class="grid-container">
+    {% for purchase in purchases %}
+        {% if purchase.user == request.user %}
+            <div class="grid-item">
+                <div class='additional-content'>
+                    {{ purchase.user.username }} bought {{ purchase.amount|floatformat:2 }} "{{ purchase.product_name.product_name }}" at {{ purchase.purchase_time.time }}
+                    <form action="{% url 'return_product' purchase.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">Вернуть</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

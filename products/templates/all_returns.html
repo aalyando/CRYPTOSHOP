@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.is_superuser %}
+  <h2>REFUNDS</h2>
+  <form method="post" action="">
+    {% csrf_token %}
+    <ul>
+      {% for return_request in return_requests %}
+        <li>
+          REQUEST FOR REFUND: {{ return_request }}
+          <label for="id_approved_{{ return_request.id }}" class="form-check-label">
+            {{ form.approved }} APPROVE
+          </label>
+          <label for="id_rejected_{{ return_request.id }}" class="form-check-label">
+            {{ form.rejected }} CANCEL
+          </label>
+          {{ form.return_request_id }}
+          <input type="hidden" name="return_request_id" value="{{ return_request.id }}">
+        </li>
+      {% endfor %}
+    </ul>
+    <button type="submit">DONE</button>
+  </form>
+    {% else %}
+        <h1 style="color:red">SORRY, ERROR 401</h1>
+{% endif %}
+{% endblock %}
+
