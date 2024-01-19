@@ -1,4 +1,4 @@
-from djangoStore.models import Product, PurchaseProcess, Refund
+from djangoStore.models import Product, PurchaseProcess, Refund, Profile
 from django.http import HttpResponseRedirect
 from djangoStore.forms import FormCreate, ProductForm, ReturnRequestForm, ReturnRequestAdminForm
 from django.shortcuts import render, get_object_or_404, redirect
@@ -10,13 +10,19 @@ def add_to_cart(request, product_id):
     if request.method == 'POST':
         quantity = float(request.POST.get('quantity'))
         product = get_object_or_404(Product, pk=product_id)
-        if product.product_amount >= quantity:
+        profile = get_object_or_404(Profile, user=request.user)
+        if product.product_amount >= quantity and profile.user_money_amount >= quantity * product.product_price:
             purchase = PurchaseProcess.objects.create(user=request.user, product_name=product, amount=quantity)
             product.product_amount -= quantity
             product.save()
+            profile.user_money_amount -= quantity * product.product_price
+            profile.save()
             return redirect('cart')
+        elif product.product_amount < quantity:
+            messages.error(request, 'Insufficient quantity of goods in stock')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         else:
-            messages.error(request, 'Недостаточное количество товара на складе')
+            messages.error(request, 'Not enough money to buy')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 def cart(request):
@@ -59,12 +65,10 @@ def edit_product(request, product_id):
 
 def return_product(request, purchase_id):
     purchase = get_object_or_404(PurchaseProcess, id=purchase_id)
-
-
     current_time = timezone.now()
     time_difference = current_time - purchase.purchase_time
     if time_difference.total_seconds() > 180:
-        messages.error(request, "Товар можно вернуть только в течение 3 минут после покупки.")
+        messages.error(request, "The product can only be returned within 3 minutes after purchase.")
         return redirect('cart')
 
     if request.method == 'POST':
@@ -74,7 +78,7 @@ def return_product(request, purchase_id):
             return_request.user = request.user
             return_request.purchase = purchase
             return_request.save()
-            messages.success(request, "Запрос на возврат создан. Ожидайте подтверждения от администратора.")
+            messages.success(request, "The return request has been created. Wait for confirmation from the administrator.")
             return redirect('cart')
     else:
         form = ReturnRequestForm()
@@ -91,11 +95,14 @@ def view_returns(request):
                 purchase = return_request.purchase
                 purchase.product_name.product_amount += float(purchase.amount)
                 purchase.product_name.save()
+                user = purchase.user
+                user.profile.user_money_amount += float(purchase.amount) * purchase.product_name.product_price
+                user.profile.save()
                 purchase.delete()
             elif form.cleaned_data['rejected']:
                 return_request.delete()
 
-            messages.success(request, "Возврат успешно обработан.")
+            messages.success(request, "Refund processed successfully.")
             return redirect('view_returns')
     else:
         form = ReturnRequestAdminForm()

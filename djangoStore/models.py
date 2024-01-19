@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 
 
 User = get_user_model()
@@ -11,7 +12,7 @@ class Profile(models.Model):
     user_money_amount = models.IntegerField(default=10000)
 
     def __str__(self):
-        return  f'Профиль {self.user.username}, деньги: {self.user.user_money_amount}'
+        return  f'Профиль {self.user.username}, деньги: {self.user.profile.user_money_amount}'
 
 
 class Product(models.Model):

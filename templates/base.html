@@ -42,7 +42,7 @@
             </li>
             <li>
             {% if user.is_authenticated %}
-            <p style="color: aqua">Hi, {{ user.username }} <li><a href="{% url 'logout' %}">Logout</a></li></p>
+            <p style="color: aqua">Hi, {{ user.username }} - {{ request.user.profile.user_money_amount }}<li><a href="{% url 'logout' %}">Logout</a></li></p>
         {% else %}
             <p><a href="{% url 'login' %}">LOGIN</a></p>
         {% endif %}
